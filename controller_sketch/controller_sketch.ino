@@ -69,18 +69,19 @@ void setup() {
   print_channels();
   lcd.cursor();
   lcd.setCursor(7, 0);
+  
   pinMode(BUTTON_L, INPUT);
   pinMode(BUTTON_R, INPUT);
   pinMode(BUTTON_MINUS, INPUT);
   pinMode(BUTTON_PLUS, INPUT);
 
-  Serial.begin(9600);
+  // Listen for MIDI on all channels
   MIDI.begin(MIDI_CHANNEL_OMNI);
 }
 
 void loop() {
   
-  // Handle key presses / settings
+  // Handle button presses / settings
   button_l.update();
   button_r.update();
   button_minus.update();
@@ -147,7 +148,7 @@ void loop() {
   }
 
 
-  // Handle midi button presses
+  // Handle midi key presses
   if(MIDI.read() && (MIDI.getChannel() == input_channel)) {
     byte type = MIDI.getType();
     int note = MIDI.getData1();
@@ -161,12 +162,6 @@ void loop() {
         break;
       case midi::NoteOff:
         channel = free_channel(note);
-        Serial.print("Ending note ");
-        Serial.print(note);
-        Serial.print(", ");
-        Serial.print(velocity);
-        Serial.print(", ");
-        Serial.println(channel);
         if(channel) {
           MIDI.sendNoteOff(note, velocity, channels[0]);
         }
